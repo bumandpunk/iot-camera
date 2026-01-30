@@ -8,15 +8,17 @@ export default {
 		baseUrl: '',
 		// #endif
 		// #ifndef H5
-		baseUrl: 'http://10.10.50.2:6160',
+		// baseUrl: 'http://10.10.50.2:6160',
+        baseUrl:'http://10.10.30.249:30345',
 		// #endif
 		cameraImagesUrl: '/api/hkwsimage/hkwsimageByCount',
 		timeout: 10000 // 请求超时时间（毫秒）
 	},
 	
+
 	// 刷新配置
 	refresh: {
-		imageInterval: 60000, // 监控图片刷新间隔（毫秒）30秒
+		imageInterval: 600000, // 监控图片刷新间隔（毫秒）30秒
 		timeInterval: 1000 // 时间更新间隔（毫秒）1秒
 	},
 	

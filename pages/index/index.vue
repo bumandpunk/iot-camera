@@ -176,22 +176,31 @@ export default {
 					const ip = ipAddresses[blockIndex]
 					const rawImages = result.data[ip] || []
 					
-					// 过滤掉null值，只保留有效的图片对象
-					const validImages = rawImages.filter(img => img !== null && img !== undefined)
-					
-					// 如果没有有效图片，显示空卡片
-					if (validImages.length === 0) {
+					// 不过滤null，保持原始索引位置
+					// 如果数组长度为0，显示空卡片
+					if (rawImages.length === 0) {
 						return {
 							isEmpty: true
 						}
 					}
 					
-					// 后端已按顺序返回，直接按数组顺序使用：
-					// 数组[0]作为主图，数组[1-2]作为左侧小图，数组[3-5]作为底部横图
-					const mainImageData = validImages[0] || {}
+					// 直接使用原始数组，按索引位置渲染：
+					// rawImages[0]作为主图，rawImages[1-2]作为左侧小图，rawImages[3-5]作为底部横图
+					// 如果某个索引是null，则显示缺省图
 					
-					// 使用 devName 作为区域名称，如果没有则使用IP
-					const areaName = mainImageData.devName || ip
+					const mainImageData = rawImages[0] || null
+					
+					// 使用 devName 作为区域名称，如果主图是null则查找第一个非null的devName
+					let areaName = ip // 默认使用IP
+					if (mainImageData && mainImageData.devName) {
+						areaName = mainImageData.devName
+					} else {
+						// 如果主图是null，从其他位置找devName
+						const firstValidImage = rawImages.find(img => img !== null && img !== undefined)
+						if (firstValidImage && firstValidImage.devName) {
+							areaName = firstValidImage.devName
+						}
+					}
 					
 					// 固定的时间标签文字
 					const timeLabels = ['半小时前', '1小时前', '1.5小时前', '2小时前', '2.5小时前']
@@ -200,24 +209,24 @@ export default {
 						isEmpty: false,
 						areaName: areaName,
 						mainImage: {
-							imageUrl: mainImageData.image || '/static/default-camera.png',
-							captureTime: mainImageData.captureTime || this.formatTime(new Date())
+							imageUrl: mainImageData?.image || '/static/empty-camera.png',
+							captureTime: mainImageData?.captureTime || this.formatTime(new Date())
 						},
-						// 左侧2张小图：数组[1]和[2]，显示"半小时前"和"1小时前"
+						// 左侧2张小图：直接使用rawImages[1]和rawImages[2]
 						leftImages: Array(2).fill(null).map((_, idx) => {
-							const img = validImages[idx + 1] || {}
+							const img = rawImages[idx + 1] // 索引1和2
 							return {
-								imageUrl: img.image || '/static/default-camera.png',
-								captureTime: img.captureTime || this.formatTime(new Date()),
+								imageUrl: img?.image || '/static/empty-camera.png',
+								captureTime: img?.captureTime || this.formatTime(new Date()),
 								timeLabel: timeLabels[idx]
 							}
 						}),
-						// 底部3张横图：数组[3]、[4]和[5]，显示"1.5小时前"、"2小时前"、"2.5小时前"
+						// 底部3张横图：直接使用rawImages[3]、rawImages[4]和rawImages[5]
 						bottomImages: Array(3).fill(null).map((_, idx) => {
-							const img = validImages[idx + 3] || {}
+							const img = rawImages[idx + 3] // 索引3、4、5
 							return {
-								imageUrl: img.image || '/static/default-camera.png',
-								captureTime: img.captureTime || this.formatTime(new Date()),
+								imageUrl: img?.image || '/static/empty-camera.png',
+								captureTime: img?.captureTime || this.formatTime(new Date()),
 								timeLabel: timeLabels[idx + 2]
 							}
 						})
@@ -432,7 +441,7 @@ export default {
 }
 
 .area-title-text {
-	font-size: 1.4vw;
+	font-size: 1.2vw;
 	color: #ffffff;
 	font-weight: bold;
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
