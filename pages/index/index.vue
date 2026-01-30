@@ -486,8 +486,8 @@ export default {
 }
 
 .left-image.grayscale {
-	filter: grayscale(100%) brightness(0.6);
-	opacity: 0.7;
+	/* filter: grayscale(100%) brightness(0.6); */
+	opacity: 0.6;
 }
 
 /* 右侧大主图 */
