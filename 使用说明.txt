@@ -1,0 +1,230 @@
+# 明厨亮灶监控展示系统 - 使用说明
+
+## 项目概述
+这是一个基于 UniApp 开发的明厨亮灶监控展示系统，用于在电视设备上全屏展示厨房生产区的实时监控画面。
+
+## 功能特点
+- ✅ 4个区块布局（2行2列）
+- ✅ 每个区块包含：1张大主图（右侧，带"最新"标签） + 3张左侧小图（置灰） + 2张底部横图（置灰）
+- ✅ 主图全彩突出显示，其他图片自动置灰降低视觉干扰
+- ✅ 金色渐变顶部导航栏，专业大气
+- ✅ 实时显示系统时间
+- ✅ 定时自动刷新监控图片
+- ✅ 图片加载失败自动降级处理
+- ✅ 适配电视横屏显示
+- ✅ 屏幕常亮功能
+
+## 快速开始
+
+### 1. 配置API接口
+修改 `config.js` 文件中的接口地址：
+
+\`\`\`javascript
+api: {
+    baseUrl: 'https://your-api-domain.com',  // 改为你的接口域名
+    cameraImagesUrl: '/api/camera/images',    // 改为你的接口路径
+    timeout: 10000
+}
+\`\`\`
+
+### 2. 接口返回数据格式
+接口应返回以下格式的数据（4个区块，每个区块1个主图+3个左侧小图+2个底部横图）：
+
+\`\`\`json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "blocks": [
+      {
+        "areaName": "生产区",
+        "mainImage": {
+          "imageUrl": "https://example.com/main1.jpg",
+          "captureTime": "2026-01-29 12:00"
+        },
+        "leftImages": [
+          {
+            "imageUrl": "https://example.com/left1_1.jpg",
+            "captureTime": "2026-01-29 11:30",
+            "timeLabel": "0.5小时前"
+          },
+          {
+            "imageUrl": "https://example.com/left1_2.jpg",
+            "captureTime": "2026-01-29 11:00",
+            "timeLabel": "1小时前"
+          },
+          {
+            "imageUrl": "https://example.com/left1_3.jpg",
+            "captureTime": "2026-01-29 10:30",
+            "timeLabel": "1.5小时前"
+          }
+        ],
+        "bottomImages": [
+          {
+            "imageUrl": "https://example.com/bottom1_1.jpg",
+            "captureTime": "2026-01-29 10:30",
+            "timeLabel": "1.5小时前"
+          },
+          {
+            "imageUrl": "https://example.com/bottom1_2.jpg",
+            "captureTime": "2026-01-29 10:00",
+            "timeLabel": "2小时前"
+          }
+        ]
+      },
+      {
+        "areaName": "生产区2",
+        "mainImage": { /* ... */ },
+        "leftImages": [ /* ... 3张左侧小图 */ ],
+        "bottomImages": [ /* ... 2张底部横图 */ ]
+      },
+      {
+        "areaName": "生产区3",
+        "mainImage": { /* ... */ },
+        "leftImages": [ /* ... 3张左侧小图 */ ],
+        "bottomImages": [ /* ... 2张底部横图 */ ]
+      },
+      {
+        "areaName": "生产区4",
+        "mainImage": { /* ... */ },
+        "leftImages": [ /* ... 3张左侧小图 */ ],
+        "bottomImages": [ /* ... 2张底部横图 */ ]
+      }
+    ]
+  }
+}
+\`\`\`
+
+### 3. 调整刷新间隔
+在 `config.js` 中修改：
+
+\`\`\`javascript
+refresh: {
+    imageInterval: 30000, // 监控图片刷新间隔（毫秒），默认30秒
+    timeInterval: 1000    // 时间更新间隔（毫秒），默认1秒
+}
+\`\`\`
+
+### 4. 修改页面文本
+在 `config.js` 中修改：
+
+\`\`\`javascript
+page: {
+    title: '明厨亮灶生产溯源管控',       // 主标题
+    cameraInfoText: '摄相生态网络巴望堂'  // 左上角文本
+}
+\`\`\`
+
+## 布局说明
+
+### 整体布局
+- 顶部：金色渐变导航栏（高度约140rpx）
+- 内容区：2行2列网格（4个区块）
+
+### 每个区块内部布局
+```
+┌─────────────────────────────────┐
+│ 区块标题（生产区）               │
+├──────────┬──────────────────────┤
+│  小图1   │                      │
+│(置灰)    │                      │
+├──────────┤     主图（彩色）      │
+│  小图2   │     带"最新"标签      │
+│(置灰)    │                      │
+├──────────┤                      │
+│  小图3   │                      │
+│(置灰)    │                      │
+├──────────┴──────────────────────┤
+│ 底部横图1(置灰) │ 底部横图2(置灰) │
+└─────────────────┴───────────────┘
+```
+
+### 视觉效果
+- **主图**：全彩显示，占据右侧整个高度，带"最新"绿色标签
+- **左侧3张小图**：自动置灰，垂直排列，显示时间和时间标签（如"0.5小时前"）
+- **底部2张横图**：自动置灰，水平并排，显示时间和时间标签
+
+## 打包发布
+
+### Android APK打包
+1. 使用 HBuilderX 打开项目
+2. 点击菜单: 发行 -> 原生App-云打包
+3. 选择 Android 平台
+4. 配置应用信息和图标
+5. 点击打包
+
+### 安装到电视
+1. 将生成的 APK 文件传输到电视
+2. 使用文件管理器安装
+3. 打开应用即可全屏展示
+
+## 项目结构
+
+\`\`\`
+iot-camera/
+├── App.vue              # 应用入口文件
+├── config.js            # 配置文件（重要）
+├── main.js              # 主入口
+├── pages.json           # 页面配置
+├── pages/
+│   └── index/
+│       └── index.vue    # 主页面
+├── utils/
+│   └── api.js          # API工具类
+└── static/             # 静态资源
+    ├── camera-icon.png    # 摄像头图标（需自行添加）
+    ├── tag-icon.png       # 标签图标（需自行添加）
+    └── default-camera.png # 默认占位图（需自行添加）
+\`\`\`
+
+## 注意事项
+
+1. **图标资源**: 需要在 `static` 目录下添加以下图标：
+   - `camera-icon.png` (48x48px)
+   - `tag-icon.png` (32x32px)  
+   - `default-camera.png` (建议1280x720px)
+
+2. **网络权限**: 确保 `manifest.json` 中已配置网络权限（已默认配置）
+
+3. **跨域问题**: 如果接口有跨域限制，需要后端配置CORS
+
+4. **图片格式**: 支持 jpg、png、webp 等常见格式
+
+5. **性能优化**: 建议接口返回的图片经过压缩，避免过大影响加载速度
+
+6. **置灰效果**: 辅图自动应用 `filter: grayscale(100%)` CSS滤镜，无需后端处理
+
+## 常见问题
+
+### Q: 图片不显示？
+A: 检查以下几点：
+- API接口地址是否正确
+- 图片URL是否有效
+- 网络是否正常
+- 查看控制台错误信息
+
+### Q: 如何调整主图和小图的比例？
+A: 修改 `pages/index/index.vue` 中的 CSS：
+```css
+.left-small-images {
+    flex: 0 0 32%; /* 左侧小图区域宽度 */
+}
+.main-image-wrapper {
+    flex: 1; /* 主图自动占据剩余空间 */
+}
+```
+
+### Q: 如何关闭图片置灰效果？
+A: 删除或注释掉 `.small-image.grayscale` 和 `.bottom-image.grayscale` 样式中的 `filter` 属性
+
+### Q: 如何调整图片数量？
+A: 修改 `config.js` 中的配置：
+```javascript
+block: {
+    leftImageCount: 3,  // 左侧小图数量
+    bottomImageCount: 2 // 底部横图数量
+}
+```
+
+## 技术支持
+如有问题，请查看控制台日志或联系技术支持。

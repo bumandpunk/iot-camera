@@ -1,0 +1,19 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "明厨亮灶",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "明厨亮灶",
+		"navigationBarBackgroundColor": "#1a1a1a",
+		"backgroundColor": "#1a1a1a",
+		"pageOrientation": "landscape"
+	},
+	"uniIdRouter": {}
+}
