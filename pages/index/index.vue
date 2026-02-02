@@ -40,9 +40,9 @@
 								:key="'left-' + idx"
 							>
 								<image 
-									class="left-image grayscale" 
+									:class="['left-image', img.imageUrl.includes('/static/empty.png') ? '' : 'grayscale']" 
 									:src="img.imageUrl" 
-									mode="aspectFill"
+									:mode="img.imageUrl.includes('/static/empty.png') ? 'aspectFit' : 'aspectFill'"
 									@error="onImageError(blockIndex, idx)"
 								></image>
 								<!-- 区域标题悬浮在左上角第一张图上 -->
@@ -50,9 +50,14 @@
 									<image class="tag-icon" src="/static/title-icon.png" mode="aspectFit"></image>
 									<text class="area-title-text">{{ block.areaName }}</text>
 								</view>
-								<view class="image-overlay">
+								<!-- 正常图片的时间覆盖层 -->
+								<view class="image-overlay" v-if="!img.imageUrl.includes('/static/empty.png')">
 									<text class="image-time">{{ img.captureTime }}</text>
 									<view class="time-badge">{{ img.timeLabel }}</view>
+								</view>
+								<!-- 缺省图的提示文字 -->
+								<view class="empty-tip" v-if="img.imageUrl.includes('/static/empty.png')">
+									<text class="empty-tip-text">图片未采集</text>
 								</view>
 							</view>
 						</view>
@@ -62,12 +67,17 @@
 							<image 
 								class="main-image" 
 								:src="block.mainImage.imageUrl" 
-								mode="aspectFill"
+								:mode="block.mainImage.imageUrl.includes('/static/empty.png') ? 'aspectFit' : 'aspectFill'"
 								@error="onImageError(blockIndex, 'main')"
 							></image>
-							<view class="main-overlay">
+							<!-- 正常图片的覆盖层 -->
+							<view class="main-overlay" v-if="!block.mainImage.imageUrl.includes('/static/empty.png')">
 								<view class="main-time">{{ block.mainImage.captureTime }}</view>
 								<view class="latest-badge">最新</view>
+							</view>
+							<!-- 缺省图的提示文字（主图专用，字体大一些） -->
+							<view class="empty-tip empty-tip-main" v-if="block.mainImage.imageUrl.includes('/static/empty.png')">
+								<text class="empty-tip-text empty-tip-text-main">图片未采集</text>
 							</view>
 							<view class="border-decoration tl"></view>
 							<view class="border-decoration tr"></view>
@@ -84,14 +94,19 @@
 							:key="'bottom-' + idx"
 						>
 							<image 
-								class="bottom-image grayscale" 
+								:class="['bottom-image', img.imageUrl.includes('/static/empty.png') ? '' : 'grayscale']" 
 								:src="img.imageUrl" 
-								mode="aspectFill"
+								:mode="img.imageUrl.includes('/static/empty.png') ? 'aspectFit' : 'aspectFill'"
 								@error="onImageError(blockIndex, idx + 2)"
 							></image>
-							<view class="image-overlay">
+							<!-- 正常图片的时间覆盖层 -->
+							<view class="image-overlay" v-if="!img.imageUrl.includes('/static/empty.png')">
 								<text class="image-time">{{ img.captureTime }}</text>
 								<view class="time-badge">{{ img.timeLabel }}</view>
+							</view>
+							<!-- 缺省图的提示文字 -->
+							<view class="empty-tip" v-if="img.imageUrl.includes('/static/empty.png')">
+								<text class="empty-tip-text">图片未采集</text>
 							</view>
 						</view>
 					</view>
@@ -209,14 +224,14 @@ export default {
 						isEmpty: false,
 						areaName: areaName,
 						mainImage: {
-							imageUrl: mainImageData?.image || '/static/empty-camera.png',
+							imageUrl: mainImageData?.image || '/static/empty.png',
 							captureTime: mainImageData?.captureTime || this.formatTime(new Date())
 						},
 						// 左侧2张小图：直接使用rawImages[1]和rawImages[2]
 						leftImages: Array(2).fill(null).map((_, idx) => {
 							const img = rawImages[idx + 1] // 索引1和2
 							return {
-								imageUrl: img?.image || '/static/empty-camera.png',
+								imageUrl: img?.image || '/static/empty.png',
 								captureTime: img?.captureTime || this.formatTime(new Date()),
 								timeLabel: timeLabels[idx]
 							}
@@ -225,7 +240,7 @@ export default {
 						bottomImages: Array(3).fill(null).map((_, idx) => {
 							const img = rawImages[idx + 3] // 索引3、4、5
 							return {
-								imageUrl: img?.image || '/static/empty-camera.png',
+								imageUrl: img?.image || '/static/empty.png',
 								captureTime: img?.captureTime || this.formatTime(new Date()),
 								timeLabel: timeLabels[idx + 2]
 							}
@@ -245,16 +260,16 @@ export default {
 			this.blockList = Array(4).fill(null).map(() => ({
 				areaName: '生产区',
 				mainImage: {
-					imageUrl: '/static/default-camera.png',
+					imageUrl: '/static/empty.png',
 					captureTime: this.formatTime(new Date())
 				},
 				leftImages: Array(2).fill(null).map((_, idx) => ({
-					imageUrl: '/static/default-camera.png',
+					imageUrl: '/static/empty.png',
 					captureTime: this.formatTime(new Date()),
 					timeLabel: `${0.5 * (idx + 1)}小时前`
 				})),
 				bottomImages: Array(3).fill(null).map((_, idx) => ({
-					imageUrl: '/static/default-camera.png',
+					imageUrl: '/static/empty.png',
 					captureTime: this.formatTime(new Date()),
 					timeLabel: `${1.5 + 0.5 * idx}小时前`
 				}))
@@ -264,11 +279,11 @@ export default {
 		// 图片加载失败处理
 		onImageError(blockIndex, imageIndex) {
 			if (imageIndex === 'main') {
-				this.blockList[blockIndex].mainImage.imageUrl = '/static/default-camera.png'
+				this.blockList[blockIndex].mainImage.imageUrl = '/static/empty.png'
 			} else if (imageIndex < 2) {
-				this.blockList[blockIndex].leftImages[imageIndex].imageUrl = '/static/default-camera.png'
+				this.blockList[blockIndex].leftImages[imageIndex].imageUrl = '/static/empty.png'
 			} else {
-				this.blockList[blockIndex].bottomImages[imageIndex - 2].imageUrl = '/static/default-camera.png'
+				this.blockList[blockIndex].bottomImages[imageIndex - 2].imageUrl = '/static/empty.png'
 			}
 		},
 		
@@ -383,13 +398,13 @@ export default {
 	grid-template-columns: repeat(2, 1fr);
 	grid-template-rows: repeat(2, 1fr);
 	gap: 1.5vh;
-	padding: 1.5vh 2vw;
-	height: calc(100vh - 10vh);
+	padding: 1.3vh 2vw;
+	height: calc(100vh - 8vh);
 }
 
 .block-item {
 	background: rgba(20, 20, 20, 0.5);
-	border-radius: 12px;
+	border-radius: 6px;
 	padding: 1.2vh;
 	border: 1px solid rgba(255, 215, 100, 0.2);
 	display: flex;
@@ -422,7 +437,7 @@ export default {
 /* 区域标题悬浮在左上角第一张图上 */
 .area-title-overlay {
 	position: absolute;
-	top: 0.7vh;
+	top: 0.5vh;
 	left: 0.5vw;
 	display: flex;
 	align-items: center;
@@ -473,7 +488,7 @@ export default {
 .left-image-item {
 	position: relative;
 	flex: 1;
-	border-radius: 8px;
+	border-radius: 6px;
 	overflow: hidden;
 	background: rgba(0, 0, 0, 0.6);
 	border: 1px solid rgba(100, 100, 100, 0.3);
@@ -494,9 +509,11 @@ export default {
 .main-image-wrapper {
 	position: relative;
 	flex: 1;
-	border-radius: 10px;
+	border-radius: 6px;
 	overflow: hidden;
 	background: rgba(0, 0, 0, 0.8);
+	margin-left: 3px;
+	margin-bottom: 2px;
 }
 
 .main-image {
@@ -576,7 +593,7 @@ export default {
 .bottom-image-item {
 	position: relative;
 	flex: 1;
-	border-radius: 8px;
+	border-radius: 6px;
 	overflow: hidden;
 	background: rgba(0, 0, 0, 0.6);
 	border: 1px solid rgba(100, 100, 100, 0.3);
@@ -618,5 +635,31 @@ export default {
 	font-size: 0.6vw;
 	color: #ffffff;
 	white-space: nowrap;
+}
+
+/* 缺省图提示文字 */
+.empty-tip {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 1vh 0;
+	background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.7));
+}
+
+/* 小图的提示文字（默认） */
+.empty-tip-text {
+	font-size: 0.9vw;
+	color: rgba(255, 255, 255, 0.6);
+	letter-spacing: 1px;
+}
+
+/* 主图的提示文字（更大） */
+.empty-tip-text-main {
+	font-size: 1.8vw;
+	margin-top: -5vh;
 }
 </style>
